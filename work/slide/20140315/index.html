@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8">
+
+    <title>akkaを使って社内ツールを作った話</title>
+
+    <meta name="description" content="2014/03/15 #新宿Scala座 '14年 3月号">
+    <meta name="author" content="Hirokazu Nishioka">
+
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <link rel="stylesheet" href="css/reveal.min.css">
+    <link rel="stylesheet" href="css/theme/default.css" id="theme">
+
+    <style type="text/css">
+      code {
+        padding: 40px !important;
+        font-size: 1.2em !important;
+        line-height: 1.4em !important;
+      }
+    </style>
+
+    <!-- For syntax highlighting -->
+    <link rel="stylesheet" href="lib/css/zenburn.css">
+
+    <!-- If the query includes 'print-pdf', use the PDF print sheet -->
+    <script>
+      document.write( '<link rel="stylesheet" href="css/print/' + ( window.location.search.match( /print-pdf/gi ) ? 'pdf' : 'paper' ) + '.css" type="text/css" media="print">' );
+    </script>
+
+    <!--[if lt IE 9]>
+    <script src="lib/js/html5shiv.js"></script>
+    <![endif]-->
+  </head>
+
+  <body>
+
+    <div class="reveal">
+
+      <!-- Any section element inside of this container is displayed as a slide -->
+      <div class="slides">
+        <section>
+          <h1 style="font-size:2em;">akkaを使って<br>社内ツールを作った話</h1>
+          <p>
+            <small>2014/03/15 #新宿Scala座 '14年 3月号 - @nisshieeorg</small>
+          </p>
+        </section>
+
+        <section>
+          <h2>自己紹介</h2>
+          <div style="float: right; margin-right: 160px;">
+            <img src="img/nisshieeorg.png" width="100" height="100">
+          </div>
+          <ul>
+            <li>西岡 寛兼(Hirokazu Nishioka)</li>
+            <li><a href="https://twitter.com/nisshieeorg">@nisshieeorg</a></li>
+            <li>Scala歴 3年弱</li>
+            <li><a href="http://www.speee.jp/">株式会社Speee</a> エンジニア</li>
+          </ul>
+        </section>
+
+        <section>
+          <section>
+            <h2>akka</h2>
+            <img src="img/akka.png">
+          </section>
+          <section>
+            <img src="img/actor-model.png">
+          </section>
+          <section>
+            <h2>akkaとは</h2>
+            <ul>
+              <li>Actorモデルによるシステム構築をサポートするFramework</li>
+              <li>akka自体はScalaで実装</li>
+              <ul>
+                <li>ScalaAPIとJavaAPIの両サポート</li>
+              </ul>
+              <li>Let it crash!</li>
+              <li>プロセス間・ノード間のメッセージングも</li>
+            </ul>
+          </section>
+        </section>
+
+        <section>
+          <h2>今回のネタ</h2>
+          <p>去年の7月頃に、akkaベースの社内ツールを作った</p>
+          <p>それをベースに、「akka使うと例えばこんなのが簡単にできますよー」というお話を</p>
+        </section>
+
+        <section data-transition="none">
+          <h2>要件</h2>
+          <img src="img/spec.png">
+        </section>
+        <section data-transition="none">
+          <h2>要件</h2>
+          <img src="img/spec2.png">
+        </section>
+
+        <section>
+          <h2>デモ1</h2>
+          <p>フロントWebAppとバックエンドをakkaでつないでみる</p>
+
+          <pre><code>git clone https://github.com/nisshiee/demo20140315.git
+cd demo20140315
+git checkout example1
+
+# console1
+cd demo20140315/akka-front
+./skinny run
+
+# console2
+cd demo20140315/akka-back
+./sbt test:run</code></pre>
+
+          <p>→ <a href="http://localhost:8080/" target="_blank">http://localhost:8080/</a></p>
+        </section>
+
+        <section>
+          <h2>デモ1</h2>
+          <img src="img/example1.png" style="border:none;">
+        </section>
+
+        <section>
+          <h2>デモ2</h2>
+          <p>「進捗どうですか」</p>
+
+          <pre><code>git checkout example2
+
+# console1
+cd demo20140315/akka-front
+./skinny run
+
+# console2
+cd demo20140315/akka-back
+./sbt test:run</code></pre>
+        </section>
+
+        <section>
+          <h2>デモ2</h2>
+          <img src="img/example2.png" style="border:none;">
+        </section>
+
+        <section>
+          <h2>デモ3</h2>
+          <p>「間違えたら止めたい」</p>
+
+          <pre><code>git checkout example3
+
+# console1
+cd demo20140315/akka-front
+./skinny run
+
+# console2
+cd demo20140315/akka-back
+./sbt test:run</code></pre>
+        </section>
+
+        <section>
+          <h2>まとめ</h2>
+          <p>こんなケースにはakkaいい感じ!</p>
+          <ul>
+            <li>プロセスやノードを超えてメッセージング</li>
+            <li>処理をキックするだけでなく途中で状況返させたい</li>
+            <li>処理の途中で挙動に介入したい</li>
+          </ul>
+        </section>
+
+      </div>
+
+    </div>
+
+    <script src="lib/js/head.min.js"></script>
+    <script src="js/reveal.min.js"></script>
+
+    <script>
+
+      // Full list of configuration options available here:
+      // https://github.com/hakimel/reveal.js#configuration
+      Reveal.initialize({
+        controls: false,
+        progress: true,
+        history: true,
+        center: true,
+
+        theme: Reveal.getQueryHash().theme, // available themes are in /css/theme
+        transition: Reveal.getQueryHash().transition || 'linear', // default/cube/page/concave/zoom/linear/fade/none
+
+        // Parallax scrolling
+        // parallaxBackgroundImage: 'https://s3.amazonaws.com/hakim-static/reveal-js/reveal-parallax-1.jpg',
+        // parallaxBackgroundSize: '2100px 900px',
+
+        // Optional libraries used to extend on reveal.js
+        dependencies: [
+          { src: 'lib/js/classList.js', condition: function() { return !document.body.classList; } },
+          { src: 'plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+          { src: 'plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+          { src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+          { src: 'plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } },
+          { src: 'plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } }
+        ]
+      });
+
+      Reveal.configure({
+        slideNumber: true
+      });
+
+    </script>
+
+  </body>
+</html>
