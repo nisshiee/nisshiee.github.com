@@ -4,9 +4,9 @@
   <head>
     <meta charset="utf-8">
 
-    <title>関数型言語入門</title>
+    <title>akkaを使って社内ツールを作った話</title>
 
-    <meta name="description" content="2014/01/08 エンジニア勉強会資料">
+    <meta name="description" content="2014/03/15 #新宿Scala座 '14年 3月号">
     <meta name="author" content="Hirokazu Nishioka">
 
     <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -45,588 +45,129 @@
       <!-- Any section element inside of this container is displayed as a slide -->
       <div class="slides">
         <section>
-          <h1 style="font-size:2em;">関数型言語入門</h1>
-          <h3>Scalaで関数型言語に触れてみよう！</h3>
+          <h1 style="font-size:2em;">akkaを使って<br>社内ツールを作った話</h1>
           <p>
-            <small>2014/01/08 エンジニア勉強会 - 西岡寛兼</small>
+            <small>2014/03/15 #新宿Scala座 '14年 3月号 - @nisshieeorg</small>
           </p>
         </section>
 
         <section>
-          <h1>Scala</h1>
-        </section>
-
-        <section>
-          <h2>Scalaとは</h2>
+          <h2>自己紹介</h2>
+          <div style="float: right; margin-right: 160px;">
+            <img src="img/nisshieeorg.png" width="100" height="100">
+          </div>
           <ul>
-            <li>オブジェクト指向・関数ハイブリッド型</li>
-            <li>コンパイルするとJVM中間言語ができる(.classファイル)</li>
-            <ul>
-              <li>つまりJarやWarを作れる</li>
-              <li>JVM上で動く(Write once, Run anywhere)</li>
-            </ul>
-            <li>Javaとシームレスに連携</li>
-            <ul>
-              <li>Mavenに蓄えられた資産をそのまま使える！</li>
-            </ul>
+            <li>西岡 寛兼(Hirokazu Nishioka)</li>
+            <li><a href="https://twitter.com/nisshieeorg">@nisshieeorg</a></li>
+            <li>Scala歴 3年弱</li>
+            <li><a href="http://www.speee.jp/">株式会社Speee</a> エンジニア</li>
           </ul>
-        </section>
-
-        <section>
-          <h2>Better Java</h2>
-          <p>ひとまず「関数型」の部分を無視して、<strong>とても楽に書けるJava</strong>としてScalaを使うことができます。</p>
-          <ul class="fragment">
-            <li>型推論</li>
-            <li>パターンマッチ</li>
-            <li>traitを使った多重継承</li>
-            <li>case class, case object</li>
-          </ul>
-        </section>
-
-        <section>
-          <h2>Better Java</h2>
-          <p>Better Javaでも、今すぐJavaを捨て去るだけの価値が<br>
-            あります。</p>
-          <p class="fragment">JavaコードをScalaに置き換えると、コード行数がだいたい1/3〜1/2になると言われています。</p>
-        </section>
-
-        <section>
-          <h2>Better Java ...?</h2>
-          <p>ただし・・・</p>
-          <div class="fragment">
-            <p>Better JavaではScalaのポテンシャルを半分も引き出せてないです。<strong>もったいない！</strong></p>
-            <p>自分はBetter Javaでよくても、例えばOSSライブラリを使うときには、Better Javaでは使えなかったり、ソースを読めなかったりします。これは避けられない・・・</p>
-          </div>
-        </section>
-
-        <section>
-          <p>ということで・・・</p>
-          <div class="fragment">
-            <p style="font-size:2em;">関数型プログラミング</p>
-            <p>Functional Programming</p>
-            <p>やりましょう</p>
-          </div>
-          <p class="fragment" style="font-size:0.6em;">注) ここでは静的型付け関数型言語を扱います。単に「関数型」と表現していますが、静的型付け関数型言語のことを指していると思ってください。</p>
-        </section>
-
-        <section>
-          <h1 style="font-size:2.4em;">関数脳をつくる</h1>
-        </section>
-
-        <section>
-          <h2>パラダイムシフト</h2>
-          <p>オブジェクト指向から関数型に移行するのは、ただ新しい言語を学ぶのとは違います。</p>
-          <p>OOP未経験者がOOPを使いこなすには考え方そのものをオブジェクト指向にしなければならないように、FP未経験者がFPを使いこなすには関数脳にする必要があります。</p>
         </section>
 
         <section>
           <section>
-            <h2>例</h2>
-            <div class="fragment">
-             <p>FizzBuzz</p>
-             <p style="font-size:0.6em;">※ただし、突飛な書き方はなしであくまで"普通に"書く前提で。</p>
-            </div>
+            <h2>akka</h2>
+            <img src="img/akka.png">
           </section>
           <section>
-            <h2>FizzBuzz</h2>
+            <img src="img/actor-model.png">
+          </section>
+          <section>
+            <h2>akkaとは</h2>
             <ul>
-              <li>1から100の数字を出力する</li>
-              <li>3で割り切れる場合は数字の代わりに「Fizz」を表示する</li>
-              <li>5で割り切れる場合は「Buzz」を表示する</li>
-              <li>3でも5でも割り切れる場合は「FizzBuzz」を表示する</li>
+              <li>Actorモデルによるシステム構築をサポートするFramework</li>
+              <li>akka自体はScalaで実装</li>
+              <ul>
+                <li>ScalaAPIとJavaAPIの両サポート</li>
+              </ul>
+              <li>Let it crash!</li>
+              <li>プロセス間・ノード間のメッセージングも</li>
             </ul>
           </section>
         </section>
 
         <section>
-          <h2>あなたの脳はどう考える？</h2>
-          <pre class="fragment" style="padding: 20px;font-size: 0.8em;line-height: 2em;">1. 1から100までカウントアップしながらループ
-    I. 変数の剰余演算結果で条件分岐
-        i. 仕様に合わせて出力</pre>
-          <p class="fragment">→手続き型脳</p>
+          <h2>今回のネタ</h2>
+          <p>去年の7月頃に、akkaベースの社内ツールを作った</p>
+          <p>それをベースに、「akka使うと例えばこんなのが簡単にできますよー」というお話を</p>
+        </section>
+
+        <section data-transition="none">
+          <h2>要件</h2>
+          <img src="img/spec.png">
+        </section>
+        <section data-transition="none">
+          <h2>要件</h2>
+          <img src="img/spec2.png">
         </section>
 
         <section>
-          <h2>じゃあ関数脳は<br>
-            どう考えるか？</h2>
+          <h2>デモ1</h2>
+          <p>フロントWebAppとバックエンドをakkaでつないでみる</p>
+
+          <pre><code>git clone https://github.com/nisshiee/demo20140315.git
+cd demo20140315
+git checkout example1
+
+# console1
+cd demo20140315/akka-front
+./skinny run
+
+# console2
+cd demo20140315/akka-back
+./sbt test:run</code></pre>
+
+          <p>→ <a href="http://localhost:8080/" target="_blank">http://localhost:8080/</a></p>
         </section>
 
         <section>
-          <p style="font-size:3em;">Int =&gt; String</p>
-          <p class="fragment">これだけ！</p>
-          <div class="fragment">
-            <p>Int値から表示用の文字列を得る関数があればいい。</p>
-            <p>作りたいプログラムの本質を関数で捉える。</p>
-          </div>
+          <h2>デモ1</h2>
+          <img src="img/example1.png" style="border:none;">
         </section>
 
         <section>
-          <section data-transition="none">
-            <h2>書いてみる</h2>
-            <pre><code>val fizzBuzz: Int =&gt; String =
+          <h2>デモ2</h2>
+          <p>「進捗どうですか」</p>
 
+          <pre><code>git checkout example2
 
+# console1
+cd demo20140315/akka-front
+./skinny run
 
-
-            </code></pre>
-          </section>
-          <section data-transition="none">
-            <h2>書いてみる</h2>
-            <pre><code>val fizzBuzz: Int =&gt; String = {
-  case i if i % 15 == 0 =&gt; "FizzBuzz"
-  case i if i % 5 == 0 =&gt; "Buzz"
-  case i if i % 3 == 0 =&gt; "Fizz"
-  case i =&gt; i.toString
-}</code></pre>
-          </section>
+# console2
+cd demo20140315/akka-back
+./sbt test:run</code></pre>
         </section>
 
         <section>
-          <h2>え？ループと表示は？</h2>
-          <p class="fragment">と、思われるかもしれませんが、ぶっちゃけそんなの興味の対象じゃないんですよね。</p>
-          <div class="fragment">
-            <p>とはいえそれじゃ仕様満たしてないと言われそうなので書いときますよ。</p>
-            <pre><code>(1 to 100) map fizzBuzz foreach println</code></pre>
-          </div>
+          <h2>デモ2</h2>
+          <img src="img/example2.png" style="border:none;">
         </section>
 
         <section>
-          <h2>なぜこんなことになるのか</h2>
-          <p class="fragment"><strong>関数</strong>が<strong>第一級オブジェクト(First Class Object)</strong>だからです。</p>
-          <div class="fragment">
-            <p style="text-align:left;"><a target="_blank" href="http://ja.wikipedia.org/wiki/%E7%AC%AC%E4%B8%80%E7%B4%9A%E3%82%AA%E3%83%96%E3%82%B8%E3%82%A7%E3%82%AF%E3%83%88">第一級オブジェクト</a>とは</p>
-            <ul>
-              <li>リテラルとして表現できる</li>
-              <li>変数に格納できる</li>
-              <li>それ自体が独自に存在できる(名前とは独立している)</li>
-              <li>関数のパラメータとして渡すことができる</li>
-              <li>関数の戻り値として返すことができる</li>
-            </ul>
-          </div>
+          <h2>デモ3</h2>
+          <p>「間違えたら止めたい」</p>
+
+          <pre><code>git checkout example3
+
+# console1
+cd demo20140315/akka-front
+./skinny run
+
+# console2
+cd demo20140315/akka-back
+./sbt test:run</code></pre>
         </section>
 
         <section>
-          <h2>関数が第一級オブジェクトだと何が起こるの？</h2>
-          <p class="fragment">これ説明したいんですけど、すごい抽象的な話になってしまいますので、頑張ってついてきてね☆</p>
-        </section>
-
-        <section>
-          <h2>まず、手続き型だと</h2>
+          <h2>まとめ</h2>
+          <p>こんなケースにはakkaいい感じ!</p>
           <ul>
-            <li>手続き型におけるメソッドはあくまで、手続きのコンポーネント化。</li>
-            <li>定義したメソッドは呼び出すことしかできない。</li>
-            <li>なので、常に「どうやって呼び出すか」を考えておかないと使えなくなっちゃいます。</li>
-            <li>つまり、手続き型は、トップダウンでないとメソッド設計しづらいんです。</li>
+            <li>プロセスやノードを超えてメッセージング</li>
+            <li>処理をキックするだけでなく途中で状況返させたい</li>
+            <li>処理の途中で挙動に介入したい</li>
           </ul>
-        </section>
-
-        <section>
-          <pre style="padding: 20px;font-size: 0.8em;line-height: 2em;">1. 1から100までカウントアップしながらループ
-    I. 変数の剰余演算結果で条件分岐
-        i. 仕様に合わせて出力</pre>
-          <p>トップダウン</p>
-        </section>
-
-        <section>
-          <h2>それに対して関数型は</h2>
-          <ul>
-            <li>関数を<strong>値</strong>として定義しておく。使い方は後から考える余地が十分にある。</li>
-            <li>なぜなら、関数を適用する(呼び出す)だけでなく、引数に渡したり戻り値にしたりできるから。</li>
-            <li>なので、関数型はボトムアップに関数を設計していくことができる。</li>
-            <li>更に、関数を引数に渡したり戻り値にしたりできるとAPI設計の幅が広がるため、標準ライブラリ・OSSライブラリの機能が豊富になる傾向がある。</li>
-          </ul>
-        </section>
-
-        <section>
-          <p style="font-size:3em;">Int =&gt; String</p>
-          <p>これ、FizzBuzzのボトムですよね。</p>
-          <p>なんでここから考えることができるかというと、呼び出す側を事前に考えておかなくても、関数を値として定義しておけば、あとでいかようにも使える自信があるから。</p>
-        </section>
-
-        <section>
-          <pre><code>(1 to 100) map fizzBuzz foreach println</code></pre>
-          <p>ほら、実際に使えてるでしょ。<strong>標準ライブラリだけで。</strong></p>
-        </section>
-
-        <section>
-          <h2>関数脳まとめ</h2>
-          <ul>
-            <li>手続き型脳は、(仮にボトムから書いてるつもりでも)メソッド設計はトップダウンでやっている</li>
-            <li>関数脳は、関数設計をボトムアップでやれる</li>
-          </ul>
-        </section>
-
-        <section>
-          <h2>小休止</h2>
-          <p>ここまでが抽象的な話</p>
-          <p>ここから具体的なコードと共に、<br>
-            Scala白魔法を紹介していきます。</p>
-          <p>ちなみに「黒魔術」と表現する人もいますが、<br>
-            より安全で保守性の高いコードにする技術なので、<br>
-            紛れも無く<strong>白魔法</strong>です。</p>
-        </section>
-
-        <section>
-          <p>以前日報でこんな主張をしました。</p>
-          <blockquote>僕が考えるオブジェクト指向の最もダメなところは、「クラス内に隠蔽されているから」という免罪符のもとデータと処理が密結合になるところなんですね。</blockquote>
-          <p class="fragment">なので、ここでは静的型付け関数型言語でデータと処理を疎結合に保つ書き方をお見せしようと思います。</p>
-        </section>
-
-        <section>
-          <h1>データ</h1>
-        </section>
-
-        <section>
-          <h2>代数的データ型</h2>
-          <blockquote>それぞれの代数的データ型の値には、1個以上のコンストラクタがあり、各コンストラクタには0個以上の引数がある。</blockquote>
-          <p style="text-align:right;"><a target="_blank" href="http://ja.wikipedia.org/wiki/%E4%BB%A3%E6%95%B0%E7%9A%84%E3%83%87%E3%83%BC%E3%82%BF%E5%9E%8B">Wikipedia</a>より</p>
-          <p class="fragment">なんのこっちゃ。</p>
-        </section>
-
-        <section>
-          <h2>代数的データ型</h2>
-          <pre><code>case class Color(red: Int, green: Int, blue: Int)
-
-// Javaのこれとほぼ同じ
-@lombok.Value
-public class Color {
-  int red;
-  int green;
-  int blue;
-}</code></pre>
-        </section>
-
-        <section>
-          <h2>代数的データ型</h2>
-          <pre><code>sealed trait RGB
-case object Red extends RGB
-case object Green extends RGB
-case object Blue extends RGB
-
-// Javaのこれとほぼ同じ
-public enum RGB {
-  Red, Green, Blue;
-}</code></pre>
-        </section>
-
-        <section>
-          <h2>代数的データ型</h2>
-          <pre><code>sealed trait RGB
-case class Red(hoge: Int) extends RGB
-case class Green(piyo: String) extends RGB
-case object Blue extends RGB
-
-// そろそろJavaでは書きたくない</code></pre>
-        </section>
-
-        <section>
-          <h2>代数的データ型</h2>
-          <pre><code>sealed trait JsonValue
-case class JObject(values: Map[String, JsonValue]) extends JsonValue
-case class JArray(values: List[JsonValue]) extends JsonValue
-sealed trait PrimitiveJsonValue extends JsonValue
-case class JInt(value: Int) extends PrimitiveJsonValue
-case class JString(value: String) extends PrimiriveJsonValue
-
-// Java・・・( ´Д｀)=3</code></pre>
-        </section>
-
-        <section>
-          <h2>代数的データ型</h2>
-          <ul>
-            <li>処理は持たず、データ構造のみ</li>
-            <li>Immutable</li>
-            <li>型の親子関係を作れる(多層も可)</li>
-            <li>親子関係は性質を共有することを表すのではなく、直和を表す</li>
-          </ul>
-        </section>
-
-        <section>
-          <h1>処理</h1>
-        </section>
-
-        <section>
-          <h2>型クラス</h2>
-          <blockquote>アドホック多相 を実現するもの<br>
-          アドホック多相とは異なる型の間で共通したインターフェースでの異なる振る舞いを定義済みの型に対して拡張するような多相</blockquote>
-          <p style="text-align:right;"><a target="_blank" href="http://chopl.in/blog/2012/11/06/introduction-to-typeclass-with-scala.html">Scalaで型クラス入門</a>より</p>
-        </section>
-
-        <section>
-          <h2>型クラス</h2>
-          <p>&quot;型クラス&quot; = &quot;型に関する性質&quot; = &quot;処理のテンプレート&quot;</p>
-        </section>
-
-        <section>
-          <h2>型クラス</h2>
-          <p>例：「足し算ができる」という性質</p>
-          <pre><code>trait Semigroup[A] {
-  def append(a1: A, a2: A): A
-}</code></pre>
-        </section>
-
-        <section>
-          <h2>型クラス</h2>
-          <p>実際の処理は「型クラスのインスタンス」に実装する。</p>
-          <p>例：Int型のSemigroup型クラスのインスタンス</p>
-          <pre><code>implicit object IntSemigroup extends Semigroup[Int] {
-  def append(a1: Int, a2: Int): Int = a1 + a2
-}</code></pre>
-          <p>これを定義することにより、「Int型は足し算することができますよ」と宣言したことになる。</p>
-        </section>
-
-        <section>
-          <h2>型クラス</h2>
-          <p>もちろん自作の代数的データ型に対して型クラスのインスタンスを定義することもできます。</p>
-          <pre><code>case class Vector2(x: Double, y: Double)
-
-implicit object Vector2Semigroup extends Semigroup[Vector2] {
-  def append(a1: Vector2, a2: Vector2): Vector2 =
-     Vector2(a1.x + a2.x, a1.y + a2.y)
-}</code></pre>
-        </section>
-
-        <section>
-          <p>性質を定義したのはわかった。</p>
-          <p>データと疎結合なまま定義できているのもわかった。</p>
-          <p>で、それどうやって使うの？</p>
-        </section>
-
-        <section>
-          <h2>白魔法</h2>
-        </section>
-
-        <section>
-          <h2>型クラス</h2>
-          <pre><code>scala&gt; 3 |+| 5
-res0: Int = 8
-
-scala&gt; Vector2(1, 2) |+| Vector2(4, 5)
-res1: Vector2 = Vector2(5.0,7.0)</code></pre>
-        </section>
-
-        <section>
-          <h2>型クラス</h2>
-          <p>登場人物をまとめるとこんな感じ</p>
-          <img style="border:none;" src="img/typeclass.png">
-        </section>
-
-        <section>
-          <h2>型クラス</h2>
-          <p>さらに、型クラスは継承関係を作ることもできます。</p>
-          <pre><code>trait Monoid[A] extends Semigroup[A] {
-  def zero: A
-}</code></pre>
-          <p>「足し算ができる」という性質(Semigroup)に加え、零元を持つという性質も持つ型クラス。</p>
-        </section>
-
-        <section>
-          <h2>型クラス</h2>
-          <p>先ほどのIntSemigroup、Vector2Semigroupを以下に置き換えます。</p>
-          <pre><code>implicit object IntMonoid extends Monoid[Int] {
-  def append(a1: Int, a2: Int): Int = a1 + a2
-  def zero: Int = 0
-}
-
-implicit object Vector2Monoid extends Monoid[Vector2] {
-  def append(a1: Vector2, a2: Vector2): Vector2 =
-     Vector2(a1.x + a2.x, a1.y + a2.y)
-  def zero: Vector2 = Vector2(0, 0)
-}</code></pre>
-        </section>
-
-        <section>
-          <h2>型クラス</h2>
-          <p>もちろんMonoidとSemigroupは継承関係にあるので、Semigroupの性質を持っていれば使えた機能は、Monoidが定義されている場合でも使えます。</p>
-          <pre><code>scala&gt; 3 |+| 5
-res0: Int = 8
-
-scala&gt; Vector2(1, 2) |+| Vector2(4, 5)
-res1: Vector2 = Vector2(5.0,7.0)</code></pre>
-        </section>
-
-        <section>
-          <p>ここからもう少し型クラスの本領見せていくよ。</p>
-        </section>
-
-        <section>
-          <h2>型クラス</h2>
-          <p>Monoidは「足し算ができる・零元がある」という性質ですが、Monoidが定義されている型に提供される機能はその2つにとどまる必要はありません。</p>
-          <p>つまり、足し算ができて、零元があるならば可能な処理は、全てのMonoidに機能として提供することができます。</p>
-        </section>
-
-        <section>
-          <h2>型クラス</h2>
-          <p>例えば、「足し算ができて、零元ある」ならば、Listに格納された要素の合計を計算することができます。</p>
-          <pre><code>def sum[A: Monoid](l: List[A]): A =
-  l.foldLeft(implicitly[Monoid[A]].zero)(_ |+| _)
-
-scala&gt; sum(List(1, 2, 3))
-res0: Int = 6
-
-scala&gt; sum(List(Vector2(1, 2), Vector2(3, 4)))
-res1: Vector2 = Vector2(4.0,6.0)</code></pre>
-        </section>
-
-        <section>
-          <h2>型クラス</h2>
-          <p>このsumメソッドはMonoidを要素に持つListであれば要素の型は何であっても適用することができますが、もしMonoidでない要素を持つListがsumメソッドに渡されると、コンパイルエラーになります。つまり「誤ってMonoidでない要素を持つListをsumに渡してしまった」というバグは発生しません。</p>
-          <pre><code>case object NotMonoid
-
-sum(List(NotMonoid, NotMonoid))
-error: could not find implicit value for evidence parameter of type Monoid[NotMonoid.type]</code></pre>
-        </section>
-
-        <section>
-          <h2>データと処理まとめ</h2>
-          <ul>
-            <li>データは、その形を代数的データ型として表現します</li>
-            <li>&quot;性質&quot;を、型クラスとして表現します</li>
-            <li>データ型ごとに、性質の振る舞いを、型クラスのインスタンスとして表現します</li>
-            <li>アドホック多相と型安全を同時に実現します</li>
-          </ul>
-        </section>
-
-        <section>
-          <p>さて、お待たせしました</p>
-        </section>
-
-        <section>
-          <h1>モナド</h1>
-        </section>
-
-        <section>
-          <h2>モナドってなに？</h2>
-          <p><strong>ただの型クラスの1つです。</strong></p>
-          <p>「足し算ができる性質」みたいにわかりやすく簡単な日本語で表せないので、難しそうに見えますけどね。</p>
-          <p style="font-size: 0.7em;">最初は「何か値を入れるコンテナ」だと思うのがいいかもしれません</p>
-          <p style="font-size: 0.7em;">慣れてくると「モナドは文脈だ」と思うのがしっくりくるようになってきます</p>
-        </section>
-
-        <section>
-          <h2>モナドが持つ性質</h2>
-          <p>1つだけ、さっきのMonoidと違うところがあるので先に。</p>
-          <ul>
-            <li>Monoid[A] ← 型Aに対する性質</li>
-            <li>Monad[M[_]] ← 型Mに対する性質だが、Mは型パラメータを1つ持つ</li>
-          </ul>
-          <p>例えばList[_]などがM[_]になれる</p>
-        </section>
-
-        <section>
-          <h2>モナドが持つ性質</h2>
-          <p>Monad[M[A]]は以下の2つの関数を持つ</p>
-          <pre><code>point: A =&gt; M[A]
-bind: (A =&gt; M[A]) =&gt; M[A] =&gt; M[A]</code></pre>
-          <p>この2つの関数は以下の条件(Monad則)を満たす</p>
-          <pre><code>bind(f)(point(a)) == f(a)
-bind(point)(m) == m
-bind(g)(bind(f)(m)) == bind({ x =&gt; bind(g)(f(x)) })(m)</code></pre>
-          <p>覚えなくてもいいですｗ</p>
-        </section>
-
-        <section>
-          <h2>モナドが持つ性質</h2>
-          <p>モナド則の意味を完全に理解する必要は全くありませんが、あえて本質だけをかいつまんで表現すると</p>
-          <blockquote style="width:90%;">「Mに包んだままAに対して実行する処理」のMonoid</blockquote>
-          <pre><code>0 + a = a
-a + 0 = a
-(a + b) + c = a + (b + c)</pre></code>
-        </section>
-
-        <section>
-          <h2>モナドに提供される機能</h2>
-          <p>Semigroupの|+|やMonoidのsumのように、Monadに提供される機能もあります</p>
-          <pre><code>M[A].flatMap: (A =&gt; M[B]) =&gt; M[B]
-M[A].map: (A =&gt; B) =&gt; M[B]</code></pre>
-          <p>mapとflatMapの活躍はこのあと紹介します</p>
-        </section>
-
-        <section>
-          <h2>つまりモナドとは</h2>
-          <ul>
-            <li>ただの型クラス</li>
-            <li>「コンテナに包まれた中の値に対する処理」を合成するための性質</li>
-            <li>モナドに提供される機能が「プログラミング」と相性がとても良い</li>
-          </ul>
-        </section>
-
-        <section>
-          <p style="font-size:2em;">モナドを使ってみよう</p>
-        </section>
-
-        <section>
-          <h2>Maybeモナド(Optionモナド)</h2>
-          <p>値が1つだけある状態 or 値が無い状態 を表すコンテナ</p>
-          <pre><code>sealed trait Option[A]
-case class Some[A](a: A) extends Option[A]
-case class None[A]() extends Option[A]</code></pre>
-        </section>
-
-        <section>
-          <h2>Maybeモナド(Optionモナド)</h2>
-          <p>例えばScala標準のMap.getはOptionを返します</p>
-          <pre><code>scala&gt; val m = Map(1 -&gt; "a", 2 -&gt; "b")
-m: scala.collection.immutable.Map[Int,String] = Map(1 -&gt; a, 2 -&gt; b)
-
-scala&gt; m.get(1)
-res0: Option[String] = Some(a)
-
-scala&gt; m.get(0)
-res1: Option[String] = None</code></pre>
-        </section>
-
-        <section>
-          <h2>Maybeモナド(Optionモナド)</h2>
-          <p>Mapから取り出した値に対して何らかの処理をしたい</p>
-          <p>でも本当に使いたい値はOptionに包まれてる</p>
-          <p>この中身を、Optionに包まれたまま処理したい</p>
-        </section>
-
-        <section>
-          <h2>Maybeモナド(Optionモナド)</h2>
-          <p>そんなときはモナドに提供される機能を使います</p>
-          <pre><code>M[A].map: (A =&gt; B) =&gt; M[B]</code></pre>
-          <p>例えば取得した文字列を大文字にする</p>
-          <pre><code>scala&gt; m.get(1).map(_.toUpperCase)
-res0: Option[String] = Some(A)
-
-scala&gt; m.get(0).map(_.toUpperCase)
-res1: Option[String] = None</code></pre>
-        </section>
-
-        <section>
-          <h2>Maybeモナド(Optionモナド)</h2>
-          <p>もし合成する処理の途中で値がなくなる可能性がある場合は</p>
-          <pre><code>val m1 = Map(1 -&gt; 'a', 2 -&gt; 'b')
-val m2 = Map('a' -&gt; "aaa", 'c' -&gt; "ccc")
-
-scala&gt; m1.get(1).flatMap(m2.get _)
-res0: Option[String] = Some(aaa)
-
-scala&gt; m1.get(0).flatMap(m2.get _)
-res1: Option[String] = None
-
-scala&gt; m1.get(2).flatMap(m2.get _)
-res2: Option[String] = None</code></pre>
-        </section>
-
-        <section>
-          <h2>ちょっと整理</h2>
-          <h3 style="text-align:left;">「Option」の機能</h3>
-          <p style="text-align:left;">値が1つある or 値がない のいずれかを表す代数的データ型</p>
-          <h3 style="text-align:left;margin-top:1em;">「モナド」の機能</h3>
-          <p style="text-align:left;">mapやflatMapを使って、<br>「コンテナに包まれた値に対する処理」を合成する型クラス</p>
-          <h3 style="text-align:left;margin-top:1em;">「Optionモナド」の機能</h3>
-          <p style="text-align:left;">値がある限り合成された処理を継続し、<br>
-            値が無くなった時点で後続の処理は無視する<br>
-            という実装をされた型クラスのインスタンス</p>
-        </section>
-
-        <section>
-          <h1>THE END</h1>
-          <p>ごめんなさい。資料ここで力尽きました・・・</p>
-          <p>時間と元気があれば他のモナドも紹介していきます。</p>
         </section>
 
       </div>
